@@ -11,6 +11,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <!-- Bootstrap -->
 <link href="_include/css/bootstrap.min.css" rel="stylesheet">
+<link href="_include/css/typeahead.css" rel="stylesheet">
 
 <!-- Main Style -->
 <link href="_include/css/main.css" rel="stylesheet">
@@ -26,11 +27,43 @@
 <title>FSL Maps</title>   
 </head>
 <body>
-<div id="mapContainer"></div>
+
+<div id="mapContainer" class="page">
+
+
+
+
+</div>
+
+<div class="searchMaps">
+<div class="form-group"> <!--
+<div id="the-basics">
+  <input  id="searchBoxInput" class="form-control typeahead" type="text" placeholder="Search">
+  <button  type="button" class="btn btn-default srchbtn" onclick="searchListener()">
+  <span class="glyphicon glyphicon-search"></span> 
+</button>
+</div> 
+-->
+ 
+    <div class="input-group">
+       <input  id="searchBoxInput" class="form-control typeahead" type="text" placeholder="Search">
+      <span class="input-group-btn">
+        <button  type="button" class="btn btn-default srchbtn" onclick="searchListener()">
+			<span class="glyphicon glyphicon-search"></span> 
+		</button>
+      </span>
+    </div><!-- /input-group -->  
+		
+
+		<div class="brand"><h3>FSL Maps</h3></div> </div>
+<div class="searchresult" id="searchresultdiv">
+</div>
+</div>
 <!-- Js -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> <!-- jQuery Core -->
 <script src="_include/js/bootstrap.min.js"></script> <!-- Bootstrap -->
-<script src="_include/js/raphael.js"></script>
+<script src="_include/js/raphael.js"></script> 
+<script src="_include/js/typeahead.js"></script> 
 <script src="_include/js/main.js"></script> <!-- Default JS
 <script src="_include/js/imagezoompan.js"></script>  -->
 <!-- End Js -->
