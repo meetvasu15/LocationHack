@@ -1,22 +1,52 @@
 var paper;
 var p ;
+var coderect;
 function createAllMap(){
 	var mapJsonObj = getMapJson ();
+	var wJsonObj = JSON.parse(wMapStr);
 	//alert(mapJsonObj);
-	 paper = Raphael(document.getElementById("mapContainer"), 400, 300);
-	 paper.setStart();
+	 paper = Raphael(document.getElementById("mapContainer"), 600, 500);
+	 Raphael.st.draggable = function() {
+	  var me = this,
+		  lx = 0,
+		  ly = 0,
+		  ox = 0,
+		  oy = 0,
+		  moveFnc = function(dx, dy) {
+			  lx = dx + ox;
+			  ly = dy + oy;
+			  me.transform('t' + lx + ',' + ly);
+		  },
+		  startFnc = function() {},
+		  endFnc = function() {
+			  ox = lx;
+			  oy = ly;
+		  };
+
+	  this.drag(moveFnc, startFnc, endFnc);
+	};
+var mySet = paper.set();
 	for (oneBuildingCount in mapJsonObj){
 		var oneBuilding= mapJsonObj[oneBuildingCount];
-		var oneRect = paper.rect(oneBuilding["x"],oneBuilding["y"],oneBuilding["width"], oneBuilding["height"]).attr({fill: "#FFD390", stroke:"#FFB037", text:"textObj"});
+		var oneRect = paper.rect(oneBuilding["x"],oneBuilding["y"],oneBuilding["width"], oneBuilding["height"]).attr({fill: "#FFD390", stroke:"#FFB037"});
+		mySet.push(oneRect);
 		oneRect.node.id=oneBuilding["id"];
-		labelPath(oneRect, oneBuilding["id"]);
-		
+		//labelPath(oneRect, oneBuilding["id"]);
+		mySet.push(labelPath(oneRect, oneBuilding["id"]));
 		//oneRect.node.text="Hello";
 		//oneRect.node.onclick  =(function(){ });
 	}
 	
-	 p= paper.setFinish();newTX=0;newTY=0;fDx=0;fDy=0;tAddX=false;tAddY=false;reInitialize=false;
-
+	for(onePortionCount in wJsonObj ){
+		var onePortion= wJsonObj[onePortionCount];
+		var oneRect = paper.rect(onePortion["x"],onePortion["y"],onePortion["width"], onePortion["height"]).attr({ stroke:"black"});
+		mySet.push(oneRect);
+		//oneRect.node.id=onePortion["id"];
+		//labelPath(oneRect, onePortion["id"]);
+		//mySet.push(labelPath(oneRect, onePortion["id"]));
+	}
+	 coderect = mySet.push( paper.rect(20,166.6479,688.57141, 834.28571).attr({ stroke:"black", fill:"rgb(250, 255, 134)", opacity:"0.2"}));
+mySet.draggable();
 	//paper.setViewBox(0,0, 700, 1200);
 }
 function getMapJson (){
@@ -143,25 +173,8 @@ viewBox.Y = oY;
             mousedown = false;
             
         });
-		
-start = function () {
-    
-},
-move = function (dx, dy) {
-	tAddX=dx-fDx,tAddY=dy-fDy,fDx=dx,fDy=dy;
-	if(reInitialize)
-	{
-		tAddX=0,fDx=0,tAddY=0;fDy=0,reInitialize=false;
-	}
-	else
-	{
-		newTX+=tAddX,newTY+=tAddY;
-		p.attr({transform: "t"+newTX+","+newTY});
-	}
 
-},
-up = function () {
-	reInitialize=true;
-};
-p.drag(move, start, up);
-
+		function showSearchResult(infoStr, bldId){
+			var searchedBldElt = paper.getById("A");
+			searchedBldElt.attr({fill: "#FFB037", stroke:""})
+		}
