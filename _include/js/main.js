@@ -1,8 +1,10 @@
 var paper;
+var p ;
 function createAllMap(){
 	var mapJsonObj = getMapJson ();
 	//alert(mapJsonObj);
 	 paper = Raphael(document.getElementById("mapContainer"), 400, 300);
+	 paper.setStart();
 	for (oneBuildingCount in mapJsonObj){
 		var oneBuilding= mapJsonObj[oneBuildingCount];
 		var oneRect = paper.rect(oneBuilding["x"],oneBuilding["y"],oneBuilding["width"], oneBuilding["height"]).attr({fill: "#FFD390", stroke:"#FFB037", text:"textObj"});
@@ -12,6 +14,9 @@ function createAllMap(){
 		//oneRect.node.text="Hello";
 		//oneRect.node.onclick  =(function(){ });
 	}
+	
+	 p= paper.setFinish();newTX=0;newTY=0;fDx=0;fDy=0;tAddX=false;tAddY=false;reInitialize=false;
+
 	//paper.setViewBox(0,0, 700, 1200);
 }
 function getMapJson (){
@@ -138,3 +143,25 @@ viewBox.Y = oY;
             mousedown = false;
             
         });
+		
+start = function () {
+    
+},
+move = function (dx, dy) {
+	tAddX=dx-fDx,tAddY=dy-fDy,fDx=dx,fDy=dy;
+	if(reInitialize)
+	{
+		tAddX=0,fDx=0,tAddY=0;fDy=0,reInitialize=false;
+	}
+	else
+	{
+		newTX+=tAddX,newTY+=tAddY;
+		p.attr({transform: "t"+newTX+","+newTY});
+	}
+
+},
+up = function () {
+	reInitialize=true;
+};
+p.drag(move, start, up);
+
