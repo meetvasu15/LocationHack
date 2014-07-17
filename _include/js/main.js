@@ -2,9 +2,14 @@ var paper;
 var p ;
 var coderect;
 var allrectNodes= new Array();
+var confDataJson;
+var wconfRoomJson;
+
 function createAllMap(){
 	var mapJsonObj = getMapJson ();
 	var wJsonObj = JSON.parse(wMapStr);
+	confDataJson=JSON.parse(confDataStr);
+	wconfRoomJson=JSON.parse(wConfRoom);
 	//alert(mapJsonObj);
 	 paper = Raphael(document.getElementById("mapContainer"), 600, 500);
 	 Raphael.st.draggable = function() {
@@ -34,22 +39,42 @@ var mySet = paper.set();
 		mySet.push(oneRect);
 		oneRect.node.id=oneBuilding["id"];
 		//labelPath(oneRect, oneBuilding["id"]);
-		mySet.push(labelPath(oneRect, oneBuilding["id"]));
+		
+			mySet.push(labelPath(oneRect, oneBuilding["id"]), 9);
+		
 		//oneRect.node.text="Hello";
 		//oneRect.node.onclick  =(function(){ });
 	}
 	
 	for(onePortionCount in wJsonObj ){
 		var onePortion= wJsonObj[onePortionCount];
-		var oneRect = paper.rect(onePortion["x"],onePortion["y"],onePortion["width"], onePortion["height"]).attr({ stroke:"black"});
+		var oneRect = paper.rect(onePortion["x"],onePortion["y"],onePortion["width"], onePortion["height"]).attr({ stroke:"#3C46D1", 'stroke-width':'0.8'});
 		mySet.push(oneRect);
 		//oneRect.node.id=onePortion["id"];
 		//labelPath(oneRect, onePortion["id"]);
 		//mySet.push(labelPath(oneRect, onePortion["id"]));
 	}
+	for(oneWCOnfCount in wconfRoomJson ){
+		var onePortion= wconfRoomJson[oneWCOnfCount];
+		var oneRect = paper.rect(onePortion["x"],onePortion["y"],onePortion["width"], onePortion["height"]).attr({ stroke:"#3C46D1", 'stroke-width':'0.8'});
+		oneRect.node.id=onePortion["id"];
+		//labelPathone(oneRect, onePortion["id"]);
+		allrectNodes[onePortion["id"]] = oneRect;
+		mySet.push(labelPathone(oneRect, onePortion["id"]));
+		mySet.push(oneRect);
+	}
+	
 	 coderect = mySet.push( paper.rect(20,166.6479,688.57141, 834.28571).attr({ stroke:"none", fill:"rgb(250, 255, 134)", opacity:"0.2"}));
 mySet.draggable();
 	//paper.setViewBox(0,0, 700, 1200);
+	
+			//glow
+		var glow = false;
+
+
+
+
+
 }
 function getMapJson (){
 	//alert(buildingmap);
@@ -61,16 +86,26 @@ function clickListener(id){
 }
 createAllMap();
 
-function labelPath( pathObj, text, textattr )
+		//showSearchResult("","");
+		
+function labelPath( pathObj, text,   textattr )
 {
     if ( textattr == undefined )
-        textattr = { 'font-size': 10, fill: '#000', stroke: 'none', 'font-family': 'Arial,Helvetica,sans-serif', 'font-weight': 400 };
+        textattr = { 'font-size': 9, fill: '#000', stroke: 'none', 'font-family': 'Arial,Helvetica,sans-serif', 'font-weight': 400 };
+    var bbox = pathObj.getBBox();
+    var textObj = pathObj.paper.text( bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, text ).attr( textattr );
+    return textObj;
+}
+function labelPathone( pathObj, text,   textattr )
+{
+    if ( textattr == undefined )
+        textattr = { 'font-size': 1, fill: '#000', stroke: 'none', 'font-family': 'Arial,Helvetica,sans-serif', 'font-weight': 10};
     var bbox = pathObj.getBBox();
     var textObj = pathObj.paper.text( bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, text ).attr( textattr );
     return textObj;
 }
 
-/*Thanks Aladaar*/
+/*resize and zoom and drag*/
 paper.setViewBox(0,0,paper.width,paper.height);
 
 
@@ -176,15 +211,39 @@ viewBox.Y = oY;
             
         });
 
-		function showSearchResult(infoStr, bldId){
-			var searchedBldElt = allrectNodes["A"];
-			searchedBldElt.attr({fill: "#FFB037", stroke:""});
-			}
-		function searchListener(){
-		var srchtext =document.getElementById('searchBoxInput').value ;
-		alert(srchtext);
+// search listener and handler
+
+//start
+		function showSearchResult(bldId){
+		for(resetColor in allrectNodes){
+			allrectNodes[resetColor].attr({fill: "#FFD390"});
 		}
-		
+			var searchedBldElt = allrectNodes[bldId];
+			searchedBldElt.attr({fill: "red"});
+		}
+	function searchListener(){
+		var srchtext =document.getElementById('searchBoxInput').value ;
+		var resultText;
+		if(confDataJson.rooms[srchtext]!= undefined && confDataJson.rooms[srchtext]!= "" ){
+			showSearchResult(confDataJson.rooms[srchtext].bldg)
+			resultText = " Building : " +confDataJson.rooms[srchtext].bldg +"<br> Room Num : "+confDataJson.rooms[srchtext].number+"<br> Name: "+confDataJson.rooms[srchtext].name+"<br> Bldg Level : "+confDataJson.rooms[srchtext].level ;
+			//$("#searchresultdiv").html("");
+			$("#searchresultdiv").html(resultText);
+			var bldid = confDataJson.rooms[srchtext].bldg ;
+			if(bldid==="W"){
+				showSearchResult(srchtext);
+			}else{
+			showSearchResult(confDataJson.rooms[srchtext].bldg);
+			}
+		}else{
+		return "Nothing found with search : '"+srchtext+"'";
+		}
+		//alert(srchtext);
+	}
+	// search listener end
+
+
+	
 		//type ahead start
 	var substringMatcher = function(strs) {
   return function findMatches(q, cb) {
@@ -210,16 +269,7 @@ viewBox.Y = oY;
   };
 };
  
-var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
-  'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii',
-  'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana',
-  'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
-  'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
-  'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
-  'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
-  'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
-  'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
-];
+var confroom = ["All Y' all","Annapurna","Apollo","APTD","Auditorium","Backyard","Scrub Oak","Barton Creek 1","Barton Creek 2","Barton Creek 3","Bear Creek","Beaumont","Berry Creek","Blue Devils","Bluebonnet1","Bonsai","Canyon Lake","Capitol","Carlsbad 1","Carlsbad 2","Cartwright","Catfish Pond","Cedar","Cerro Alto","Command Center","Corsicana","Cottonwood","DSD Quality","Everest","Fenway Park","Flamingo","Forbes Field","Frio","Guadalupe","High Yield","K2","Keystone","Lake Buchanan","Lavaca","Leadership","Longhorn","Magnolia","Marble Falls","Marula","Mesquite","Mirage","Mission Control","Momentum 1","Momentum 2","Nacodoches","North Padre","Nueces","Oasis","Opportunity","Pecan Grove 1 & 2","Pecos","Pedernales","Pelican","Penny Lake","Pennybacker","Red River","Sabine","San Gabriel","San Jacinto","San Marcos","San Saba","Seneca","Shark Tank","Silver Creek 1","Silver Creek 2","Silver Creek 3","Simplify","Situation Room","Sonora","South Padre","Spicewood","St. Andrews 1","Strawberry Fields","Sunset Canyon","Tejas","Three Rivers","Thunderdome","Town Lake","Treaty Oak","Trinity 1","Trinity 2","Trinity 3","Tripoli Shores","Tropicana","Twin Lakes","Vandalay","Vegas","Walnut Creek","War Room","Waterloo","Waxahachie","WWW","Yahoo","Zephyr","Zilker","Zin", "Karen" , "Chris","Vasu","Anshu"];
  
 $('.input-group .typeahead').typeahead({
   hint: true,
@@ -227,9 +277,8 @@ $('.input-group .typeahead').typeahead({
   minLength: 1
 },
 {
-  name: 'states',
+  name: 'confroom',
   displayKey: 'value',
-  source: substringMatcher(states)
+  source: substringMatcher(confroom)
 });
 	//type ahead end
-		showSearchResult("","");
