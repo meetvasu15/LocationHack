@@ -67,11 +67,6 @@ var mySet = paper.set();
 	 coderect = mySet.push( paper.rect(20,166.6479,688.57141, 834.28571).attr({ stroke:"none", fill:"rgb(250, 255, 134)", opacity:"0.2"}));
 mySet.draggable();
 	//paper.setViewBox(0,0, 700, 1200);
-	
-			//glow
-		var glow = false;
-
-
 
 
 
